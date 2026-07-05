@@ -11,6 +11,8 @@ class AppConstants {
   }
 
   static String get baseUrl => '$rootUrl/api/v1';
+  
+  static const String s3Url = 'https://pub-67fa09494ce44bb18a54b0c9000cc2de.r2.dev';
 
   static String formatImageUrl(String? url, {int? id}) {
     if (url == null || url.isEmpty) {
@@ -25,15 +27,20 @@ class AppConstants {
     }
     if (url!.startsWith('http')) return url;
     
-    // Xử lý các đường dẫn phổ biến từ Laravel
+    // Xử lý các đường dẫn từ Laravel (Cloudflare R2)
     String cleanUrl = url;
     if (url.startsWith('/')) {
       cleanUrl = url.substring(1);
     }
-    if (!cleanUrl.startsWith('storage/')) {
-      cleanUrl = 'storage/$cleanUrl';
+    
+    // Xóa 'storage/' hoặc 'public/' nếu có vì R2 lưu trực tiếp theo path
+    if (cleanUrl.startsWith('storage/')) {
+      cleanUrl = cleanUrl.substring(8);
+    } else if (cleanUrl.startsWith('public/')) {
+      cleanUrl = cleanUrl.substring(7);
     }
-    return '$rootUrl/$cleanUrl';
+
+    return '$s3Url/$cleanUrl';
   }
 
   static const String tokenKey = 'access_token';
